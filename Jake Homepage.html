@@ -1,0 +1,29 @@
+<html>
+	<title>
+	Home
+	</title>
+	
+	<body style="background-color:rgb(100, 140, 200);">
+	<h1 align = "center">Welcome back Jake</h1>
+	</body>
+	<h2 align = "center" id = "randomNumber"></h2>
+	<form action="https://youtube.com" align = "center">
+		<input type="submit" value="Youtube" />
+	</form>
+	<form action="https://google.com" align = "center">
+		<input type="submit" value="Google" />
+	</form>
+	<form action="https://lichess.org" align = "center">
+		<input type="submit" value="Lichess" />
+	</form>
+	<form action="https://duolingo.com" align = "center">
+		<input type="submit" value="Duolingo" />
+	</form>
+	<form action="https://open.spotify.com" align = "center">
+		<input type="submit" value="Spotify" />
+	</form>
+	
+	<script>
+		document.getElementById("randomNumber").innerHTML = "There have only been " + Math.round(Math.random()*100) +" incidents since last login"
+	</script>
+</html>
