@@ -1,3 +1,4 @@
+
 <html>
 	<title>
 	Home
@@ -29,8 +30,14 @@
 		var color2 = Math.round(Math.random()*255)
 		var color3 = Math.round(Math.random()*255)
 		var bgcolor = color1 + ", " + color2 + ", " + color3
-		var Rcolor ="background-color:rgb("+ bgcolor +")"
-		document.body.style = Rcolor
-
+		var Acolor ="background-color:rgb("+ bgcolor +")"
+		document.body.style = Acolor
+		var textColor1 = 255-color1
+		var textColor2 = 255-color2
+		var textColor3 = 255-color3
+		var textColor = textColor1 + ", " + textColor2 + ", " + textColor3
+		var Bcolor ="color:rgb("+ textColor +")"
+		document.getElementById("header").style = Bcolor
+		document.getElementById("randomNumber").style = Bcolor
 	</script>
 </html>
