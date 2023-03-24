@@ -3,10 +3,10 @@
 	Home
 	</title>
 	
-	<body style="background-color:rgb(100, 140, 200);">
-	<h1 align = "center">Welcome back Jake</h1>
+	<body>
+	<h1 id="header" align = "center" style="color:black">Welcome back Jake</h1>
 	</body>
-	<h2 align = "center" id = "randomNumber"></h2>
+	<h2 align = "center" id = "randomNumber" style="color:black"></h2>
 	<form action="https://youtube.com" align = "center">
 		<input type="submit" value="Youtube" />
 	</form>
@@ -22,8 +22,15 @@
 	<form action="https://open.spotify.com" align = "center">
 		<input type="submit" value="Spotify" />
 	</form>
-	
+
 	<script>
 		document.getElementById("randomNumber").innerHTML = "There have only been " + Math.round(Math.random()*100) +" incidents since last login"
+		var color1 = Math.round(Math.random()*255)
+		var color2 = Math.round(Math.random()*255)
+		var color3 = Math.round(Math.random()*255)
+		var bgcolor = color1 + ", " + color2 + ", " + color3
+		var Rcolor ="background-color:rgb("+ bgcolor +")"
+		document.body.style = Rcolor
+
 	</script>
 </html>
