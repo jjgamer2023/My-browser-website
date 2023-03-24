@@ -26,14 +26,14 @@
 
 	<script>
 		document.getElementById("randomNumber").innerHTML = "There have only been " + Math.round(Math.random()*100) +" incidents since last login"
-		<! This is code that gives a random number for the number of incidents >
+		<!-- This is code that gives a random number for the number of incidents -->
 		var color1 = Math.round(Math.random()*255)
 		var color2 = Math.round(Math.random()*255)
 		var color3 = Math.round(Math.random()*255)
 		var bgcolor = color1 + ", " + color2 + ", " + color3
 		var Acolor ="background-color:rgb("+ bgcolor +")"
 		document.body.style = Acolor
-		<! This makes the color of the background a random one >
+		<!-- This makes the color of the background a random one -->
 		var textColor1 = 255-color1
 		var textColor2 = 255-color2
 		var textColor3 = 255-color3
@@ -41,6 +41,6 @@
 		var Bcolor ="color:rgb("+ textColor +")"
 		document.getElementById("header").style = Bcolor
 		document.getElementById("randomNumber").style = Bcolor
-		<! This makes the color of the text the inverse of the color that the background is >
+		<!-- This makes the color of the text the inverse of the color that the background is -->
 	</script>
 </html>
