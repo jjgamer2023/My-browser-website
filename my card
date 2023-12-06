@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hi, from Jacob Carpenter</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            text-align: center;
+            background-color: grey;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 50px auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        p {
+            color: #666;
+        }
+
+        .contact-info {
+            text-align: left;
+            margin-top: 20px;
+        }
+
+        .contact-info p {
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Jacob Carpenter</h1>
+        <p>Student at Acacia International School</p>
+
+        <div class="contact-info">
+            <p>Phone: <span id="phone">+1 (214) 605-9133</span></p>
+            <p>Email: <span id="email">jakeiancarpenter@gmail.com</span></p>
+            <p>Instagram: <span id="instagram">@jakeiancarpentertwo</span></p>
+            <p>Address: <span id="address">505 SE 2nd street, Grande Prairie, TX</span></p>
+        </div>
+    </div>
+
+</body>
+</html>
