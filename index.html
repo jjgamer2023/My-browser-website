@@ -1,47 +1,52 @@
-
+<!DOCTYPE html>
 <html>
-<title>
-	Home
-	</title>
-	
-	<body>
-	<h1 id="header" align = "center">Welcome back</h1>
-	</body>
-	<h2 align = "center" id = "randomNumber"></h2>
-	<form action="https://youtube.com" align = "center">
-		<input type="submit" value="Youtube" />
-	</form>
-	<form action="https://mail.google.com/mail/u/0/#inbox" align = "center">
-		<input type="submit" value="Gmail" />
-	</form>	
-	<form action="https://instagram.com" align = "center">
-		<input type="submit" value="Instagram" />
-<div align="center">
-    <button type="button" onclick="window.location.href='file:///E:/Notes/Notetaker.html'">
-        Notes
-    </button>
-</div>
-	<script>
-		document.getElementById("randomNumber").innerHTML = "There have only been " + Math.round(Math.random()*100) +" incidents since last login"
-		<!-- This is code that gives a random number for the number of incidents -->
-		var color1 = Math.round(Math.random()*255)
-		var color2 = Math.round(Math.random()*255)
-		var color3 = Math.round(Math.random()*255)
-		var bgcolor = color1 + ", " + color2 + ", " + color3
-		var Acolor ="background-color:rgb("+ bgcolor +")"
-		document.body.style = Acolor
-		<!-- This makes the color of the background a random one -->
-		var textColor1 = 255-color1
-		var textColor2 = 255-color2
-		var textColor3 = 255-color3
-		var textColor = textColor1 + ", " + textColor2 + ", " + textColor3
-		var Bcolor ="color:rgb("+ textColor +")"
-		document.getElementById("header").style = Bcolor
-		document.getElementById("randomNumber").style = Bcolor
-		<!-- This makes the color of the text the inverse of the color that the background is -->
-	</script>
+<head>
+    <title>Home</title>
+</head>
+<body>
+    <h1 id="header" align="center">Welcome back</h1>
+    <h2 align="center" id="randomNumber"></h2>
+
+    <div align="center" style="display: flex; flex-direction: column; gap: 10px;">
+        <form action="https://youtube.com">
+            <input type="submit" value="Youtube" style="width: 100px; cursor: pointer;" />
+        </form>
+        
+        <form action="https://mail.google.com/mail/u/0/#inbox">
+            <input type="submit" value="Gmail" style="width: 100px; cursor: pointer;" />
+        </form>
+        
+        <form action="https://instagram.com">
+            <input type="submit" value="Instagram" style="width: 100px; cursor: pointer;" />
+        </form>
+
+        <div align="center">
+            <button type="button" style="width: 100px; cursor: pointer;" 
+                    onclick="window.location.href='file:///E:/Notes/Notetaker.html'">
+                Notes
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Set the random incident text
+        document.getElementById("randomNumber").innerHTML = "There have only been " + Math.round(Math.random()*100) + " incidents since last login";
+
+        // Generate random background color
+        var color1 = Math.round(Math.random()*255);
+        var color2 = Math.round(Math.random()*255);
+        var color3 = Math.round(Math.random()*255);
+        var bgcolor = color1 + ", " + color2 + ", " + color3;
+        document.body.style.backgroundColor = "rgb(" + bgcolor + ")";
+
+        // Calculate inverse text color for visibility
+        var textColor1 = 255 - color1;
+        var textColor2 = 255 - color2;
+        var textColor3 = 255 - color3;
+        var textColor = "rgb(" + textColor1 + ", " + textColor2 + ", " + textColor3 + ")";
+        
+        document.getElementById("header").style.color = textColor;
+        document.getElementById("randomNumber").style.color = textColor;
+    </script>
+</body>
 </html>
-
-
-
-
