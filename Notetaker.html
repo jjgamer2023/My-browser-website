@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SketchPad Notes - Local File Editor</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            background-color: #f3f4f6;
+        }
+
+        #canvas {
+            touch-action: none;
+            cursor: crosshair;
+            background: white;
+            border-radius: 8px;
+        }
+
+        .editor-container {
+            height: calc(100vh - 240px);
+        }
+
+        textarea {
+            resize: none;
+            border-radius: 8px;
+        }
+
+        /* Smooth fade for toasts */
+        .toast {
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8 font-sans">
+
+    <div class="max-w-6xl mx-auto bg-white p-6 rounded-xl shadow-lg border border-gray-200">
+        <!-- Header & Toolbar -->
+        <header class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
+            <div class="flex-grow w-full md:w-auto">
+                <h1 class="text-2xl font-bold text-gray-800">SketchPad Notes</h1>
+                <div class="mt-2 flex items-center gap-2">
+                    <label for="filename-input" class="text-xs font-bold text-gray-400 uppercase tracking-wider">Label:</label>
+                    <input type="text" id="filename-input"
+                           class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full md:w-64 p-1.5"
+                           placeholder="Untitled Note"
+                           maxlength="50">
+                </div>
+            </div>
+
+            <div class="flex gap-2 flex-wrap justify-end">
+                <input type="file" id="file-input" accept=".spn" class="hidden">
+
+                <button id="open-btn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded transition font-medium flex items-center shadow-sm">
+                    📂 Open
+                </button>
+                <button id="save-btn" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded transition font-medium shadow-sm">
+                    💾 Download
+                </button>
+                <button id="new-btn" class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded transition border border-gray-300">
+                    📄 New
+                </button>
+            </div>
+        </header>
+
+        <!-- Tools for Drawing -->
+        <div class="flex items-center gap-4 mb-4 bg-gray-50 p-3 rounded-lg border border-gray-200 overflow-x-auto">
+            <div class="flex items-center gap-2">
+                <label class="text-sm font-semibold text-gray-600">Color:</label>
+                <input type="color" id="color-picker" value="#2563eb" class="w-8 h-8 rounded border-none cursor-pointer">
+            </div>
+            <div class="flex items-center gap-2">
+                <label class="text-sm font-semibold text-gray-600">Brush:</label>
+                <input type="range" id="brush-size" min="1" max="25" value="4" class="w-24 cursor-pointer">
+            </div>
+            <div class="h-6 w-px bg-gray-300 mx-2"></div>
+            <button id="clear-canvas" class="text-red-500 hover:bg-red-50 px-3 py-1 rounded text-sm font-bold border border-red-200 transition-colors">
+                Clear Canvas
+            </button>
+        </div>
+
+        <!-- Main Workspace -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 editor-container">
+            <!-- Text Side -->
+            <div class="flex flex-col h-full">
+                <label class="text-sm font-bold text-gray-700 mb-2 flex items-center gap-2">
+                    <span class="w-2 h-2 bg-blue-500 rounded-full"></span> Text Notes
+                </label>
+                <textarea id="text-editor" class="flex-grow p-4 border border-gray-300 focus:ring-2 focus:ring-blue-500 outline-none shadow-inner text-gray-800 leading-relaxed" placeholder="Type your thoughts here..."></textarea>
+            </div>
+
+            <!-- Drawing Side -->
+            <div class="flex flex-col h-full">
+                <label class="text-sm font-bold text-gray-700 mb-2 flex items-center gap-2">
+                    <span class="w-2 h-2 bg-purple-500 rounded-full"></span> Drawing Board
+                </label>
+                <div class="flex-grow relative bg-gray-200 rounded-lg overflow-hidden border border-gray-300 shadow-inner" id="canvas-container">
+                    <canvas id="canvas"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d', { willReadFrequently: true });
+        const textEditor = document.getElementById('text-editor');
+        const filenameInput = document.getElementById('filename-input');
+        const colorPicker = document.getElementById('color-picker');
+        const brushSize = document.getElementById('brush-size');
+        const fileInput = document.getElementById('file-input');
+
+        let isDrawing = false;
+
+        function resizeCanvas() {
+            const container = document.getElementById('canvas-container');
+            let tempContent = null;
+            if (canvas.width > 0 && canvas.height > 0) {
+                tempContent = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            }
+            canvas.width = container.clientWidth;
+            canvas.height = container.clientHeight;
+            ctx.fillStyle = 'white';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            if (tempContent) {
+                ctx.putImageData(tempContent, 0, 0);
+            }
+        }
+
+        window.addEventListener('load', () => {
+            resizeCanvas();
+            ctx.fillStyle = 'white';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        });
+        window.addEventListener('resize', resizeCanvas);
+
+        function getCoords(e) {
+            const rect = canvas.getBoundingClientRect();
+            const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+            const clientY = e.clientY || (e.touches && e.touches[0].clientY);
+            return { x: clientX - rect.left, y: clientY - rect.top };
+        }
+
+        function startDrawing(e) {
+            isDrawing = true;
+            const coords = getCoords(e);
+            ctx.beginPath();
+            ctx.moveTo(coords.x, coords.y);
+        }
+
+        function draw(e) {
+            if (!isDrawing) return;
+            const coords = getCoords(e);
+            ctx.lineWidth = brushSize.value;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            ctx.strokeStyle = colorPicker.value;
+            ctx.lineTo(coords.x, coords.y);
+            ctx.stroke();
+        }
+
+        function stopDrawing() { isDrawing = false; }
+
+        canvas.addEventListener('mousedown', startDrawing);
+        canvas.addEventListener('mousemove', draw);
+        canvas.addEventListener('mouseup', stopDrawing);
+        canvas.addEventListener('mouseleave', stopDrawing);
+
+        canvas.addEventListener('touchstart', (e) => {
+            if (e.target === canvas) e.preventDefault();
+            startDrawing(e);
+        }, { passive: false });
+        canvas.addEventListener('touchmove', (e) => {
+            if (e.target === canvas) e.preventDefault();
+            draw(e);
+        }, { passive: false });
+        canvas.addEventListener('touchend', stopDrawing);
+
+        document.getElementById('clear-canvas').onclick = () => {
+            ctx.fillStyle = 'white';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            showToast("Canvas Cleared");
+        };
+
+        // --- File Operations ---
+
+        document.getElementById('new-btn').onclick = () => {
+            if(confirm("Discard current work?")) {
+                textEditor.value = "";
+                filenameInput.value = "";
+                ctx.fillStyle = 'white';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                fileInput.value = "";
+                showToast("New note created");
+            }
+        };
+
+        document.getElementById('open-btn').onclick = () => fileInput.click();
+
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                try {
+                    const data = JSON.parse(event.target.result);
+                    textEditor.value = data.text || "";
+
+                    // Restore filename from original name or saved label
+                    filenameInput.value = file.name.replace('.spn', '').replace(/note_/, '');
+
+                    if (data.drawing) {
+                        const img = new Image();
+                        img.onload = () => {
+                            ctx.fillStyle = 'white';
+                            ctx.fillRect(0, 0, canvas.width, canvas.height);
+                            ctx.drawImage(img, 0, 0);
+                        };
+                        img.src = data.drawing;
+                    }
+                    showToast("Note loaded");
+                } catch (err) {
+                    showToast("Error: Invalid file format");
+                }
+                fileInput.value = "";
+            };
+            reader.readAsText(file);
+        });
+
+        document.getElementById('save-btn').onclick = () => {
+            const label = filenameInput.value.trim().replace(/[^a-z0-9]/gi, '_').toLowerCase();
+            const finalName = label || 'sketch_note';
+
+            const data = {
+                text: textEditor.value,
+                drawing: canvas.toDataURL('image/png'),
+                label: filenameInput.value,
+                timestamp: new Date().toISOString()
+            };
+
+            const blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `note_${finalName}.spn`;
+
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+
+            showToast(`Saved as note_${finalName}.spn`);
+        };
+
+        function showToast(msg) {
+            const existing = document.querySelector('.toast');
+            if (existing) existing.remove();
+
+            const toast = document.createElement('div');
+            toast.className = "toast fixed bottom-6 right-6 bg-gray-900 text-white px-5 py-3 rounded-full shadow-2xl z-50 border border-gray-700 text-sm font-medium";
+            toast.innerHTML = `✅ ${msg}`;
+            document.body.appendChild(toast);
+
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateY(10px)';
+                setTimeout(() => toast.remove(), 300);
+            }, 2000);
+        }
+    </script>
+</body>
+</html>
