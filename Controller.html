@@ -1,17 +1,50 @@
 <!DOCTYPE html>
 <html>
-<body style="font-size: 2em; text-align: center; padding: 20px;">
-  
-  <h2>Pick an Image</h2>
-  <button onclick="changeImage('photo1.png')" style="width:100%; padding: 20px; margin: 10px;">Show Photo 1</button>
-  <button onclick="changeImage('photo2.jpg')" style="width:100%; padding: 20px; margin: 10px;">Show Photo 2</button>
-  <button onclick="changeImage('photo3.jpg')" style="width:100%; padding: 20px; margin: 10px;">Show Photo 3</button>
+<head>
+  <style>
+    body { font-family: sans-serif; padding: 20px; background: #f0f0f0; }
+    
+    /* Grid layout for buttons */
+    .grid-container {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr); /* 4 buttons per row */
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    button {
+      padding: 20px;
+      font-size: 1.5em;
+      background: white;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    button:active { background: #ddd; }
+
+    .random-btn {
+      width: 100%;
+      background-color: #ff4444;
+      color: white;
+      font-weight: bold;
+      border: none;
+    }
+  </style>
+</head>
+<body>
+
+  <button class="random-btn" onclick="sendRoll(Math.floor(Math.random() * 20) + 1)">
+    🎲 ROLL RANDOM D20
+  </button>
+
+  <div class="grid-container" id="buttonGrid">
+    <!-- Buttons 1-20 will be generated here by JavaScript -->
+  </div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
   apiKey: "AIzaSyB7NcOdjU85JByZpfJWhAO8ys1zz-njFIQ",
   authDomain: "dndimages-295f6.firebaseapp.com",
@@ -26,8 +59,18 @@ const firebaseConfig = {
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
-    window.changeImage = function(imageName) {
-      set(ref(db, 'currentImage'), imageName);
+    // Function to send number to database
+    window.sendRoll = function(number) {
+      set(ref(db, 'currentRoll'), number);
+    }
+
+    // Automatically create buttons 1-20
+    const grid = document.getElementById('buttonGrid');
+    for (let i = 1; i <= 20; i++) {
+      let btn = document.createElement("button");
+      btn.innerText = i;
+      btn.onclick = function() { sendRoll(i); };
+      grid.appendChild(btn);
     }
   </script>
 </body>
