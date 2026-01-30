@@ -3,49 +3,138 @@
 <head>
   <style>
     body { 
-      background-color: #222; 
-      color: white; 
-      font-family: sans-serif; 
+      background-color: #000; 
+      color: #e0e0e0; 
+      font-family: 'Courier New', Courier, monospace; 
+      margin: 0;
+      height: 100vh;
+      overflow: hidden;
       display: flex;
       justify-content: center;
       align-items: center;
-      height: 100vh;
-      margin: 0;
     }
+
+    /* --- The Purple Mist Effect --- */
+    .fog-container {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      z-index: -1; /* Behind the text */
+    }
+    .fog-img {
+      position: absolute;
+      height: 100vh;
+      width: 300vw;
+      z-index: 1;
+      opacity: 0.6;
+      background: linear-gradient(to right, transparent 0%, rgba(138, 43, 226, 0.4) 50%, transparent 100%);
+      animation: fogflow 20s linear infinite;
+    }
+    .fog-img-2 {
+      z-index: 2;
+      opacity: 0.4;
+      animation-duration: 35s;
+      animation-direction: reverse;
+      background: linear-gradient(to right, transparent 0%, rgba(75, 0, 130, 0.5) 50%, transparent 100%);
+    }
+
+    @keyframes fogflow {
+      0% { transform: translateX(-100vw); }
+      100% { transform: translateX(100vw); }
+    }
+
+    /* --- The Number Display --- */
     #displayNumber {
-      font-size: 40vw; /* Huge responsive text */
+      font-size: 35vw;
       font-weight: bold;
+      text-shadow: 0 0 20px #8a2be2, 0 0 40px #4b0082;
+      transition: opacity 0.5s;
+    }
+    
+    .hidden {
+      color: #555;
+      text-shadow: none !important;
     }
   </style>
 </head>
 <body>
+
+  <!-- Background Effects -->
+  <div class="fog-container">
+    <div class="fog-img"></div>
+    <div class="fog-img fog-img-2"></div>
+  </div>
+
   <div id="displayNumber">--</div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
     import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-const firebaseConfig = {
-  apiKey: "AIzaSyB7NcOdjU85JByZpfJWhAO8ys1zz-njFIQ",
-  authDomain: "dndimages-295f6.firebaseapp.com",
-  databaseURL: "https://dndimages-295f6-default-rtdb.firebaseio.com",
-  projectId: "dndimages-295f6",
-  storageBucket: "dndimages-295f6.firebasestorage.app",
-  messagingSenderId: "101883250835",
-  appId: "1:101883250835:web:7223c55b169e4432dd2566",
-  measurementId: "G-W6K9D109PF"
-};
+    const firebaseConfig = {
+      apiKey: "AIzaSyB7NcOdjU85JByZpfJWhAO8ys1zz-njFIQ",
+      authDomain: "dndimages-295f6.firebaseapp.com",
+      databaseURL: "https://dndimages-295f6-default-rtdb.firebaseio.com",
+      projectId: "dndimages-295f6",
+      storageBucket: "dndimages-295f6.firebasestorage.app",
+      messagingSenderId: "101883250835",
+      appId: "1:101883250835:web:7223c55b169e4432dd2566",
+      measurementId: "G-W6K9D109PF"
+    };
 
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
     
-    // Listen for 'currentRoll' instead of 'currentImage'
-    onValue(ref(db, 'currentRoll'), (snapshot) => {
+    let lastTimestamp = 0;
+    const display = document.getElementById('displayNumber');
+
+    // Listen for changes in the 'rollData' object
+    onValue(ref(db, 'rollData'), (snapshot) => {
       const data = snapshot.val();
-      if(data) {
-        document.getElementById('displayNumber').innerText = data;
+      if(!data) return;
+
+      // 1. Handle Visibility
+      if (data.visible === false) {
+        display.innerText = "???";
+        display.classList.add("hidden");
+        return; // Don't animate if hidden
+      } else {
+        display.classList.remove("hidden");
+      }
+
+      // 2. Handle New Roll (Animation)
+      // Only animate if the timestamp is newer than the last one we saw
+      if (data.timestamp && data.timestamp > lastTimestamp) {
+        lastTimestamp = data.timestamp;
+        animateRoll(data.value);
+      } else if (display.innerText === "???") {
+        // If we just un-hid it, show the number immediately
+        display.innerText = data.value;
       }
     });
+
+    function animateRoll(targetNumber) {
+      let counter = 0;
+      let speed = 50; // Start fast
+      
+      const rollLoop = () => {
+        // Show random number
+        display.innerText = Math.floor(Math.random() * 20) + 1;
+        counter++;
+
+        if (counter < 15) {
+          // Keep rolling, but get slightly slower
+          setTimeout(rollLoop, speed);
+          if (counter > 10) speed += 20; 
+        } else {
+          // Stop on the target
+          display.innerText = targetNumber;
+        }
+      };
+      
+      rollLoop();
+    }
   </script>
 </body>
 </html>
