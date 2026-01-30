@@ -1,70 +1,119 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
-    body { font-family: sans-serif; padding: 20px; background: #f0f0f0; }
+    body { 
+      font-family: sans-serif; 
+      padding: 10px; 
+      background: #1a1a1a; 
+      color: white;
+    }
     
-    /* Grid layout for buttons */
     .grid-container {
       display: grid;
-      grid-template-columns: repeat(4, 1fr); /* 4 buttons per row */
+      grid-template-columns: repeat(4, 1fr);
       gap: 10px;
       margin-top: 20px;
     }
 
     button {
-      padding: 20px;
+      padding: 20px 0;
       font-size: 1.5em;
-      background: white;
-      border: 1px solid #ccc;
+      background: #333;
+      color: white;
+      border: 1px solid #555;
       border-radius: 8px;
       cursor: pointer;
     }
-    button:active { background: #ddd; }
+    button:active { background: #8a2be2; border-color: white; }
 
-    .random-btn {
-      width: 100%;
-      background-color: #ff4444;
-      color: white;
+    .control-panel {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .action-btn {
+      flex: 1;
+      background-color: #4b0082;
       font-weight: bold;
       border: none;
     }
+    
+    #visibilityBtn.active {
+      background-color: #2e8b57; /* Green when visible */
+    }
+    #visibilityBtn.inactive {
+      background-color: #b22222; /* Red when hidden */
+    }
+
   </style>
 </head>
 <body>
 
-  <button class="random-btn" onclick="sendRoll(Math.floor(Math.random() * 20) + 1)">
-    🎲 ROLL RANDOM D20
-  </button>
-
-  <div class="grid-container" id="buttonGrid">
-    <!-- Buttons 1-20 will be generated here by JavaScript -->
+  <div class="control-panel">
+    <button id="visibilityBtn" class="action-btn active" onclick="toggleVisibility()">
+      👁️ VISIBLE
+    </button>
+    <button class="action-btn" onclick="sendRoll(Math.floor(Math.random() * 20) + 1)">
+      🎲 RANDOM
+    </button>
   </div>
+
+  <div class="grid-container" id="buttonGrid"></div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+    import { getDatabase, ref, update, get, child } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-const firebaseConfig = {
-  apiKey: "AIzaSyB7NcOdjU85JByZpfJWhAO8ys1zz-njFIQ",
-  authDomain: "dndimages-295f6.firebaseapp.com",
-  databaseURL: "https://dndimages-295f6-default-rtdb.firebaseio.com",
-  projectId: "dndimages-295f6",
-  storageBucket: "dndimages-295f6.firebasestorage.app",
-  messagingSenderId: "101883250835",
-  appId: "1:101883250835:web:7223c55b169e4432dd2566",
-  measurementId: "G-W6K9D109PF"
-};
+    const firebaseConfig = {
+      apiKey: "AIzaSyB7NcOdjU85JByZpfJWhAO8ys1zz-njFIQ",
+      authDomain: "dndimages-295f6.firebaseapp.com",
+      databaseURL: "https://dndimages-295f6-default-rtdb.firebaseio.com",
+      projectId: "dndimages-295f6",
+      storageBucket: "dndimages-295f6.firebasestorage.app",
+      messagingSenderId: "101883250835",
+      appId: "1:101883250835:web:7223c55b169e4432dd2566",
+      measurementId: "G-W6K9D109PF"
+    };
 
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
-    // Function to send number to database
+    // Current state tracker
+    let isVisible = true;
+
+    // 1. Send Roll Function
     window.sendRoll = function(number) {
-      set(ref(db, 'currentRoll'), number);
+      update(ref(db, 'rollData'), {
+        value: number,
+        timestamp: Date.now() // Unique time ensures animation triggers every time
+      });
     }
 
-    // Automatically create buttons 1-20
+    // 2. Toggle Visibility Function
+    window.toggleVisibility = function() {
+      isVisible = !isVisible;
+      updateUI();
+      
+      update(ref(db, 'rollData'), {
+        visible: isVisible
+      });
+    }
+
+    function updateUI() {
+      const btn = document.getElementById('visibilityBtn');
+      if(isVisible) {
+        btn.innerText = "👁️ VISIBLE";
+        btn.className = "action-btn active";
+      } else {
+        btn.innerText = "🙈 HIDDEN";
+        btn.className = "action-btn inactive";
+      }
+    }
+
+    // Generate Buttons 1-20
     const grid = document.getElementById('buttonGrid');
     for (let i = 1; i <= 20; i++) {
       let btn = document.createElement("button");
