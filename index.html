@@ -1,87 +1,51 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <style>
-    body { 
-      /* Replace the URL below with your preferred dragon image */
-      background-image: url('https://images.unsplash.com/photo-1577493322601-3ae7ee4583fb?q=80&w=2000');
-      background-size: cover;
-      background-position: center;
-      background-repeat: no-repeat;
-      background-color: #000; 
-      color: #e0e0e0; 
-      font-family: 'Courier New', Courier, monospace; 
-      margin: 0;
-      height: 100vh;
-      overflow: hidden;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-
-    /* Overlay to ensure the number remains readable over the image */
-    .overlay {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.4); 
-      z-index: 0;
-    }
-
-    #displayNumber {
-      position: relative;
-      z-index: 1;
-      font-size: 35vw;
-      font-weight: bold;
-      text-shadow: 0 0 20px #8a2be2, 0 0 40px #4b0082;
-    }
-    
-    .hidden {
-      color: #555;
-      text-shadow: none !important;
-    }
-  </style>
+    <title>Home</title>
 </head>
 <body>
+    <h1 id="header" align="center">Welcome back</h1>
+    <h2 align="center" id="randomNumber"></h2>
 
-  <div class="overlay"></div>
-  <div id="displayNumber">--</div>
+    <div align="center" style="display: flex; flex-direction: column; gap: 10px;">
+        <form action="https://youtube.com">
+            <input type="submit" value="Youtube" style="width: 100px; cursor: pointer;" />
+        </form>
+        
+        <form action="https://mail.google.com/mail/u/0/#inbox">
+            <input type="submit" value="Gmail" style="width: 100px; cursor: pointer;" />
+        </form>
+        
+        <form action="https://instagram.com">
+            <input type="submit" value="Instagram" style="width: 100px; cursor: pointer;" />
+        </form>
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        <div align="center">
+           <button type="button" onclick="window.location.href='Notetaker.html'">
+    Notes
+</button>
+        </div>
+    </div>
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyB7NcOdjU85JByZpfJWhAO8ys1zz-njFIQ",
-      authDomain: "dndimages-295f6.firebaseapp.com",
-      databaseURL: "https://dndimages-295f6-default-rtdb.firebaseio.com",
-      projectId: "dndimages-295f6",
-      storageBucket: "dndimages-295f6.firebasestorage.app",
-      messagingSenderId: "101883250835",
-      appId: "1:101883250835:web:7223c55b169e4432dd2566",
-      measurementId: "G-W6K9D109PF"
-    };
+    <script>
+        // Set the random incident text
+        document.getElementById("randomNumber").innerHTML = "There have only been " + Math.round(Math.random()*100) + " incidents since last login";
 
-    const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
-    const display = document.getElementById('displayNumber');
+        // Generate random background color
+        var color1 = Math.round(Math.random()*255);
+        var color2 = Math.round(Math.random()*255);
+        var color3 = Math.round(Math.random()*255);
+        var bgcolor = color1 + ", " + color2 + ", " + color3;
+        document.body.style.backgroundColor = "rgb(" + bgcolor + ")";
 
-    onValue(ref(db, 'rollData'), (snapshot) => {
-      const data = snapshot.val();
-      if(!data) return;
-
-      // 1. Handle Visibility
-      if (data.visible === false) {
-        display.innerText = "???";
-        display.classList.add("hidden");
-      } else {
-        display.classList.remove("hidden");
-        // 2. Display the value immediately (No animation)
-        display.innerText = data.value;
-      }
-    });
-  </script>
+        // Calculate inverse text color for visibility
+        var textColor1 = 255 - color1;
+        var textColor2 = 255 - color2;
+        var textColor3 = 255 - color3;
+        var textColor = "rgb(" + textColor1 + ", " + textColor2 + ", " + textColor3 + ")";
+        
+        document.getElementById("header").style.color = textColor;
+        document.getElementById("randomNumber").style.color = textColor;
+    </script>
 </body>
 </html>
