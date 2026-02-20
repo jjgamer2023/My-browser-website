@@ -3,69 +3,53 @@
 <head>
   <style>
     body { 
+      /* Using your specific dragon image link */
+      background-image: url('https://i.pinimg.com/736x/d1/b2/ce/d1b2ce78f316efb50ddd27d79568cf94.jpg');
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed; /* Keeps image steady */
       background-color: #000; 
       color: #e0e0e0; 
       font-family: 'Courier New', Courier, monospace; 
       margin: 0;
       height: 100vh;
+      width: 100vw;
       overflow: hidden;
       display: flex;
       justify-content: center;
       align-items: center;
     }
 
-    /* --- The Purple Mist Effect --- */
-    .fog-container {
+    /* Dark overlay to make the purple numbers pop against the dragon */
+    .overlay {
       position: absolute;
+      top: 0;
+      left: 0;
       width: 100%;
       height: 100%;
-      overflow: hidden;
-      z-index: -1; /* Behind the text */
-    }
-    .fog-img {
-      position: absolute;
-      height: 100vh;
-      width: 300vw;
-      z-index: 1;
-      opacity: 0.6;
-      background: linear-gradient(to right, transparent 0%, rgba(138, 43, 226, 0.4) 50%, transparent 100%);
-      animation: fogflow 20s linear infinite;
-    }
-    .fog-img-2 {
-      z-index: 2;
-      opacity: 0.4;
-      animation-duration: 35s;
-      animation-direction: reverse;
-      background: linear-gradient(to right, transparent 0%, rgba(75, 0, 130, 0.5) 50%, transparent 100%);
+      background: rgba(0, 0, 0, 0.5); 
+      z-index: 0;
     }
 
-    @keyframes fogflow {
-      0% { transform: translateX(-100vw); }
-      100% { transform: translateX(100vw); }
-    }
-
-    /* --- The Number Display --- */
     #displayNumber {
+      position: relative;
+      z-index: 1;
       font-size: 35vw;
       font-weight: bold;
-      text-shadow: 0 0 20px #8a2be2, 0 0 40px #4b0082;
-      transition: opacity 0.5s;
+      /* Stronger glow to compete with the background detail */
+      text-shadow: 0 0 30px #8a2be2, 0 0 60px #4b0082, 0 0 100px #000;
+      transition: color 0.3s ease;
     }
     
     .hidden {
-      color: #555;
+      color: #333; /* Darker when hidden */
       text-shadow: none !important;
     }
   </style>
 </head>
 <body>
 
-  <!-- Background Effects -->
-  <div class="fog-container">
-    <div class="fog-img"></div>
-    <div class="fog-img fog-img-2"></div>
-  </div>
-
+  <div class="overlay"></div>
   <div id="displayNumber">--</div>
 
   <script type="module">
@@ -85,56 +69,22 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
-    
-    let lastTimestamp = 0;
     const display = document.getElementById('displayNumber');
 
-    // Listen for changes in the 'rollData' object
     onValue(ref(db, 'rollData'), (snapshot) => {
       const data = snapshot.val();
       if(!data) return;
 
-      // 1. Handle Visibility
       if (data.visible === false) {
         display.innerText = "???";
         display.classList.add("hidden");
-        return; // Don't animate if hidden
       } else {
         display.classList.remove("hidden");
-      }
-
-      // 2. Handle New Roll (Animation)
-      // Only animate if the timestamp is newer than the last one we saw
-      if (data.timestamp && data.timestamp > lastTimestamp) {
-        lastTimestamp = data.timestamp;
-        animateRoll(data.value);
-      } else if (display.innerText === "???") {
-        // If we just un-hid it, show the number immediately
+        // This is a direct update. No loops, no timers. 
+        // If the number flickers, it's because the database is flickering!
         display.innerText = data.value;
       }
     });
-
-    function animateRoll(targetNumber) {
-      let counter = 0;
-      let speed = 50; // Start fast
-      
-      const rollLoop = () => {
-        // Show random number
-        display.innerText = Math.floor(Math.random() * 20) + 1;
-        counter++;
-
-        if (counter < 15) {
-          // Keep rolling, but get slightly slower
-          setTimeout(rollLoop, speed);
-          if (counter > 10) speed += 20; 
-        } else {
-          // Stop on the target
-          display.innerText = targetNumber;
-        }
-      };
-      
-      rollLoop();
-    }
   </script>
 </body>
 </html>
